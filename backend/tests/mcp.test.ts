@@ -161,6 +161,8 @@ describe("AI agents & MCP", () => {
     expect(page.status).toBe(200);
     expect(page.text).toContain("Connect “Claude”?");
     expect(page.text).toContain(`value="${agentId}"`);
+    // form-action must allow the client's callback, or browsers block the redirect that follows "Allow".
+    expect(page.headers["content-security-policy"]).toContain("form-action 'self' http://localhost:9999;");
     const csrf = /name="csrf" value="([^"]+)"/.exec(page.text)![1]!;
     const reqId = new URL(consentUrl, "http://x").searchParams.get("req")!;
 

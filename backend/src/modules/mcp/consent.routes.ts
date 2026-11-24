@@ -20,6 +20,22 @@ function page(title: string, body: string) {
  * Human approval step of the OAuth flow. Requires a signed-in admin with `ai:manage`
  * (2FA already completed). The admin chooses which AI agent account the assistant acts as.
  */
+/** CSP source for a redirect target: its origin for http(s), or its scheme for app callbacks (e.g. `claude:`). */
+function redirectSource(uri: string | undefined): string {
+  if (!uri) return "";
+  try {
+    const u = new URL(uri);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.origin : u.protocol;
+  } catch {
+    return "";
+  }
+}
+
+function consentCsp(redirectUri?: string): string {
+  const formAction = ["'self'", redirectSource(redirectUri)].filter(Boolean).join(" ");
+  return `default-src 'none'; style-src 'unsafe-inline'; form-action ${formAction}; frame-ancestors 'none'`;
+}
+
 export function consentRoutes(redis: Redis, sessions: SessionStore, provider: SghOAuthProvider): Router {
   const r = Router();
   r.use(loadSession(sessions));
@@ -32,13 +48,16 @@ export function consentRoutes(redis: Redis, sessions: SessionStore, provider: Sg
   r.get("/oauth/consent", async (req, res) => {
     const id = String(req.query.req ?? "");
     const raw = /^[\w-]{10,60}$/.test(id) ? await redis.get(pendingKey(id)) : null;
-    res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'");
+    const pending = raw ? (JSON.parse(raw) as PendingAuthorization) : null;
+    // form-action also governs the redirect that follows the form POST, so the client's callback must be allowed
+    // here — otherwise the browser blocks the hop back to Claude/ChatGPT after the request was already approved.
+    res.setHeader("Content-Security-Policy", consentCsp(pending?.redirectUri));
     if (!raw) return res.status(400).send(page("Link expired", `<h1>This connection request expired</h1><p>Start connecting again from Claude or ChatGPT.</p>`));
     const s = req.session;
     if (!s || s.stage !== "active") return res.redirect(302, `/admin/login?next=${encodeURIComponent(`/oauth/consent?req=${id}`)}`);
     if (s.mustSetup2fa) return res.redirect(302, "/admin/setup-2fa");
     if (!hasPermission(s.permissions, "ai:manage")) return res.status(403).send(page("Not allowed", `<h1>Not allowed</h1><p>Only a Super Admin or Admin can connect AI assistants.</p>`));
-    const p = JSON.parse(raw) as PendingAuthorization;
+    const p = pending!;
     const agents = await AdminModel.find({ kind: "ai_agent", status: "active" }).populate("role", "name").select("name role").lean();
     const host = (() => {
       try {
@@ -80,7 +99,7 @@ ${options}
       const p = raw ? (JSON.parse(raw) as PendingAuthorization) : null;
       await audit(req, { action: "ai.connect", entityType: "admin", entityId: String(agent._id), summary: `${p?.clientName ?? "AI assistant"} connected as ${agent.name}` });
       // form-action must allow the client's redirect origin for this response
-      res.setHeader("Content-Security-Policy", `default-src 'none'; form-action 'self' ${new URL(url).origin}; frame-ancestors 'none'`);
+      res.setHeader("Content-Security-Policy", consentCsp(url));
       res.redirect(302, url);
     } catch (err) {
       if (!(err instanceof InvalidGrantError)) logger.error({ err }, "MCP consent approve failed");
