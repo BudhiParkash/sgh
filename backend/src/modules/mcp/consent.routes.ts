@@ -1,4 +1,6 @@
 import express, { Router } from "express";
+import { InvalidGrantError } from "@modelcontextprotocol/sdk/server/auth/errors.js";
+import { logger } from "../../config/logger.js";
 import { safeEqual } from "../../lib/crypto.js";
 import { hasPermission, loadSession } from "../../middleware/auth.js";
 import { AdminModel } from "../admins/admin.model.js";
@@ -80,7 +82,8 @@ ${options}
       // form-action must allow the client's redirect origin for this response
       res.setHeader("Content-Security-Policy", `default-src 'none'; form-action 'self' ${new URL(url).origin}; frame-ancestors 'none'`);
       res.redirect(302, url);
-    } catch {
+    } catch (err) {
+      if (!(err instanceof InvalidGrantError)) logger.error({ err }, "MCP consent approve failed");
       res.status(400).send(page("Expired", "<h1>This connection request expired</h1><p>Start again from Claude or ChatGPT.</p>"));
     }
   });

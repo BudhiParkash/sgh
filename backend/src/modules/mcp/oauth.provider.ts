@@ -32,6 +32,17 @@ interface IssuedCode {
 }
 
 export const pendingKey = (id: string) => `oauth:req:${id}`;
+
+/**
+ * Atomic read-and-delete (single use). A MULTI transaction instead of GETDEL, which needs Redis 6.2+ —
+ * Ubuntu's packaged Redis is older (5.x/6.0).
+ */
+async function takeKey(redis: Redis, key: string): Promise<string | null> {
+  const res = await redis.multi().get(key).del(key).exec();
+  const [err, value] = res?.[0] ?? [null, null];
+  if (err) throw err;
+  return (value as string | null) ?? null;
+}
 const codeKey = (c: string) => `oauth:code:${c}`;
 
 /** Issues an access + rotating refresh token for an AI agent. */
@@ -82,7 +93,7 @@ export class SghOAuthProvider implements OAuthServerProvider {
 
   /** Called by the consent page after an admin approves. Returns the redirect URL with the code. */
   async approve(requestId: string, agentId: string, approvedBy: string): Promise<string> {
-    const raw = await this.redis.getdel(pendingKey(requestId));
+    const raw = await takeKey(this.redis, pendingKey(requestId));
     if (!raw) throw new InvalidGrantError("Authorization request expired");
     const p = JSON.parse(raw) as PendingAuthorization;
     const code = randomBytes(24).toString("base64url");
@@ -95,7 +106,7 @@ export class SghOAuthProvider implements OAuthServerProvider {
   }
 
   async deny(requestId: string): Promise<string | null> {
-    const raw = await this.redis.getdel(pendingKey(requestId));
+    const raw = await takeKey(this.redis, pendingKey(requestId));
     if (!raw) return null;
     const p = JSON.parse(raw) as PendingAuthorization;
     const url = new URL(p.redirectUri);
@@ -113,7 +124,7 @@ export class SghOAuthProvider implements OAuthServerProvider {
   }
 
   async exchangeAuthorizationCode(client: OAuthClientInformationFull, code: string, _verifier?: string, redirectUri?: string): Promise<OAuthTokens> {
-    const raw = await this.redis.getdel(codeKey(code)); // single use
+    const raw = await takeKey(this.redis, codeKey(code)); // single use
     if (!raw) throw new InvalidGrantError("Invalid or used authorization code");
     const c = JSON.parse(raw) as IssuedCode;
     if (c.clientId !== client.client_id) throw new InvalidGrantError("Code was issued to another client");
