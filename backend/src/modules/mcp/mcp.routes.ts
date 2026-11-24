@@ -49,7 +49,8 @@ export function mcpRoutes(getApp: () => Express, redis: Redis, sessions: Session
   const bearer = requireBearerAuth({ verifier: provider, resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(resource) });
   const limit = rateLimit(redis, { name: "mcp", points: 300, durationSec: 60, key: (req) => String(req.auth?.extra?.agentId ?? req.ipHash) });
 
-  r.post("/mcp", bearer, limit, express.json({ limit: "1mb" }), async (req, res) => {
+  // 12 MB: upload_media may carry a base64 image (≤ 8 MB decoded).
+  r.post("/mcp", bearer, limit, express.json({ limit: "12mb" }), async (req, res) => {
     const agentId = String(req.auth!.extra!.agentId);
     const server = buildMcpServer(new AdminApiClient(getApp(), redis, sessions, agentId, req.ip));
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });

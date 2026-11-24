@@ -14,7 +14,8 @@ Most content is researched and drafted with Claude and ChatGPT. The backend ther
 | `get_publish_checks` | Blocking problems and warnings before review |
 | `content_action` | Workflow; agents normally use `submit` (draft → review) |
 | `get_preview_link` | 30-minute draft-mode preview link to send to the owner |
-| `list_media` | Reuse images the team uploaded (agents cannot upload) |
+| `list_media` | Find images already in the library (reuse before uploading) |
+| `upload_media` | Add an image from a public https URL or base64. Same upload route, checks and audit log as the admin panel. Licence and source notes are required; the image rules are in the guidelines. URL downloads are SSRF-safe: https only, public addresses only (checked at connect time), at most 3 redirects, 8 MB, 15 s timeout. |
 | `get_seo_overview` | Site SEO audit |
 
 Content types: tournament, sensitivity setup, device, gun guide, article, category, tag.

@@ -7,7 +7,9 @@ import { categoryCreateSchema } from "../categories/category.routes.js";
 import { configCreateSchema, deviceCreateSchema, weaponCreateSchema } from "../sensitivity/sensitivity.admin.js";
 import { tagCreateSchema } from "../tags/tag.routes.js";
 import { tournamentCreateSchema } from "../tournaments/tournament.routes.js";
+import { LIMITS } from "@sgh/shared";
 import type { AdminApiClient, ApiResult } from "./admin-client.js";
+import { fetchImage, ImageFetchError } from "./fetch-image.js";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API documents are passed through as JSON */
 
@@ -86,11 +88,12 @@ You are helping the team of Shivanshi Gaming Hub (${env.SITE_URL}), an independe
 2. Tournaments need the organiser's own announcement as \`officialSourceUrl\` (KRAFTON / BGMI official site, official YouTube, Instagram or X account of the organiser). A Google search result, a news article or a Reddit post is NOT an official source — add those as additional sources with the right type, and mark the tournament \`rumour\` until it is officially announced.
 3. Sensitivity setups marked "tested" must contain real test details supplied by the owner (tester name, date, device used, game version). Otherwise use "community" or "baseline".
 4. Write in your own words. Never copy articles, and never upload or link game artwork, logos, screenshots or music.
-5. No betting, gambling, entry-fee, wallet or real-money gaming content, and no hacks, mods or cheats.
-6. Dates are in India Standard Time (IST, UTC+05:30). Send ISO 8601 with offset, e.g. 2026-12-20T18:00:00+05:30.
+5. Images (\`upload_media\`): only upload (a) images you generated or made yourself — licence \`original\`, and say how it was made in \`licenceNotes\` — or (b) official press-kit / clearly licensed images — licence \`press_kit\` or \`licensed\`, with the source URL and terms in \`licenceNotes\` and the owner in \`credit\`. Never upload game screenshots, KRAFTON/BGMI/PUBG logos or characters, player or creator photos from social media, or anything found via image search. Every image needs real alt text. Reuse existing images (\`list_media\`) before uploading.
+6. No betting, gambling, entry-fee, wallet or real-money gaming content, and no hacks, mods or cheats.
+7. Dates are in India Standard Time (IST, UTC+05:30). Send ISO 8601 with offset, e.g. 2026-12-20T18:00:00+05:30.
 
 ## How work flows
-- Everything you create is a **draft**. Use \`content_action\` with \`submit\` to send it for review. A human admin reviews, verifies and publishes — you cannot publish, delete, or change settings, legal pages or users.
+- Everything you create is a **draft**. Use \`content_action\` with \`submit\` to send it for review. A human admin reviews, verifies and publishes — you cannot publish, delete, or change settings, legal pages or users. Attach an uploaded image by setting the item's image field (e.g. \`featuredImage\`) to the media id with \`update_content\`.
 - Before submitting, run \`get_publish_checks\` and fix every blocking problem.
 - Look things up before creating: \`search_content\` to avoid duplicates, \`list_reference_data\` for game, category, tag and device ids, \`get_schema\` for the exact fields.
 - Updates send only the fields you change. Include \`version\` from \`get_content\` to avoid overwriting someone else's edit.
@@ -307,14 +310,58 @@ export function buildMcpServer(api: AdminApiClient): McpServer {
     "list_media",
     {
       title: "Media library",
-      description: "Find images already uploaded by the team (to use as featuredImage/image ids). AI agents cannot upload images.",
+      description: "Find images in the library (to use as featuredImage/image ids). Check here before uploading a new image.",
       inputSchema: { q: z.string().max(100).optional(), page: z.number().int().min(1).default(1) },
       annotations: ro,
     },
     async ({ q, page }) => {
       const params = new URLSearchParams({ page: String(page), limit: "30" });
       if (q) params.set("q", q);
-      return fromApi(await api.call("GET", `/media?${params}`), (items: any[]) => items.map((m) => ({ id: m.id, alt: m.alt, title: m.title, credit: m.credit, width: m.width, height: m.height, url: m.url ?? m.variants?.[0]?.url })));
+      return fromApi(await api.call("GET", `/media?${params}`), (items: any[]) =>
+        items.map((m) => ({ id: m.id, alt: m.alt, credit: m.credit, licence: m.licence, category: m.category, width: m.width, height: m.height, url: m.ref?.url, usedBy: m.usageCount })),
+      );
+    },
+  );
+
+  server.registerTool(
+    "upload_media",
+    {
+      title: "Upload an image",
+      description:
+        "Add an image to the media library from a public https URL (preferred) or base64 data, then attach it with update_content (e.g. featuredImage = returned id). " +
+        "JPEG, PNG, WebP or AVIF, at least 64×64, at most 8 MB; the site creates resized WebP/AVIF versions and strips metadata. " +
+        "For base64, send a compact WebP/JPEG (ideally ≤ 300 KB, ~1280 px wide). Follow the image rules in get_guidelines: no game screenshots, logos, characters or images from image search.",
+      inputSchema: {
+        url: z.string().url().max(2000).optional().describe("Public https:// URL of the image file"),
+        base64: z.string().max(12_000_000).optional().describe("Image bytes as base64 (a data: URL prefix is fine)"),
+        filename: z.string().max(120).optional().describe("File name, e.g. bgmi-recoil-guide.webp"),
+        alt: z.string().min(3).max(250).describe("What the image shows, for screen readers"),
+        caption: z.string().max(300).optional(),
+        credit: z.string().max(200).optional().describe("Who owns/made the image (required for press_kit and licensed)"),
+        licence: z.enum(["original", "licensed", "press_kit"]).describe("original = you generated/made it; press_kit/licensed = official or licensed source"),
+        licenceNotes: z.string().min(10).max(500).describe("How it was made (original) or the source URL + licence terms (press_kit/licensed)"),
+        category: z.enum(["general", "tournament", "sensitivity", "article", "device", "weapon", "resource"]).default("general"),
+      },
+    },
+    async ({ url, base64, filename, licence, credit, ...meta }) => {
+      if (!url === !base64) return { isError: true, content: [{ type: "text", text: "Send exactly one of url or base64." }] };
+      if (licence !== "original" && !credit) return { isError: true, content: [{ type: "text", text: "credit is required for press_kit and licensed images." }] };
+      let file: { buffer: Buffer; filename: string };
+      if (url) {
+        try {
+          file = await fetchImage(url, LIMITS.uploadBytesMax);
+        } catch (e) {
+          return { isError: true, content: [{ type: "text", text: e instanceof ImageFetchError ? e.message : "Could not download the image." }] };
+        }
+      } else {
+        const data = base64!.replace(/^data:[^;,]+;base64,/, "").replace(/\s+/g, "");
+        if (!/^[A-Za-z0-9+/]+={0,2}$/.test(data)) return { isError: true, content: [{ type: "text", text: "base64 is not valid base64 data." }] };
+        const buffer = Buffer.from(data, "base64");
+        if (buffer.length > LIMITS.uploadBytesMax) return { isError: true, content: [{ type: "text", text: "The image is larger than 8 MB." }] };
+        file = { buffer, filename: filename ?? "image" };
+      }
+      const r = await api.upload<any>("/media", { ...meta, licence, credit }, { buffer: file.buffer, filename: (filename ?? file.filename).slice(0, 120) });
+      return fromApi(r, (m) => ({ id: m.id, url: m.ref?.url, width: m.width, height: m.height, alt: m.alt, next: "Attach it with update_content, e.g. { featuredImage: id }." }));
     },
   );
 

@@ -116,6 +116,7 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
   },
   /**
    * AI assistants (Claude / ChatGPT via MCP). Research → create/edit drafts → submit for review.
+   * Can add images to the media library (upload_media) but not edit or delete existing media.
    * No publish, verify, delete, settings, legal, people or inbox (personal data) by default.
    * Give an AI agent a custom role if you deliberately want it to publish.
    */
@@ -132,7 +133,7 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
         "scope:read", "game:read",
         "article:read", "article:create", "article:update",
         "category:read", "tag:read", "tag:create",
-        "media:read", "seo:read", "seo:update", "redirect:read",
+        "media:read", "media:create", "seo:read", "seo:update", "redirect:read",
       ),
     ],
   },

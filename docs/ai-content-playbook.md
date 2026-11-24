@@ -7,6 +7,7 @@ How to use Claude, connected to the site through the MCP connector, to research 
 |---|---|---|
 | Research, create and edit drafts (tournaments, sensitivity setups, devices, gun guides, articles, categories, tags) | ✅ | ✅ |
 | Run publish checks and submit for review | ✅ | ✅ |
+| Upload images to the media library and attach them to drafts | ✅ (can't edit or delete existing images) | ✅ |
 | **Publish**, verify, delete | ❌ | ✅ |
 | **Settings** and **Legal pages** | ❌ | ✅ (with a lawyer for legal pages) |
 
@@ -93,6 +94,13 @@ Original writing, real headings, an FAQ, internal links to related site pages. R
 ```
 Weekly update: check get_overview's "needs attention" list. Update tournaments whose status changed (upcoming → ongoing → completed, with official results only). Look for new official BGMI announcements, patch notes and events from the past 7 days and draft news items for them. Fix any SEO issues from get_seo_overview. Submit everything and report.
 ```
+
+### 2.7 Images for existing drafts
+```
+For each item I list below (or every draft without a featuredImage if I list none): check list_media for a suitable existing image first. If none fits, create an original image (no game screenshots, logos, characters or real people), export it as WebP about 1280 px wide and under 300 KB, and upload it with upload_media (licence "original", licenceNotes saying how it was made, clear alt text, the right category). If you use an official press-kit image instead, use licence "press_kit" with the source URL in licenceNotes and the owner in credit. Then attach it with update_content (featuredImage = media id) without changing any other field. Report: item | media id | image URL | licence.
+```
+
+Image rules the connector enforces: JPEG, PNG, WebP or AVIF, at most 8 MB, at least 64×64. Links must be public `https://` addresses. Alt text, a licence and source notes are required. The site converts every upload to WebP/AVIF and strips metadata. Claude can add images but can't edit or delete existing ones.
 
 ---
 

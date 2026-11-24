@@ -97,8 +97,36 @@ export class AdminApiClient {
       },
       ...(body !== undefined && { body: JSON.stringify(body) }),
     });
-    const raw = await res.text();
-    const json = raw ? (JSON.parse(raw) as { data?: T; meta?: Record<string, unknown>; error?: ApiResult["error"] }) : {};
-    return { status: res.status, ok: res.ok, data: json.data, meta: json.meta, error: json.error };
+    return parse<T>(res);
   }
+
+  /** Multipart upload (e.g. POST /media) through the same admin route, validation and audit as the panel. */
+  async upload<T = unknown>(path: string, fields: Record<string, string | undefined>, file: { buffer: Buffer; filename: string }): Promise<ApiResult<T>> {
+    const s = await this.session();
+    const form = new FormData();
+    for (const [k, v] of Object.entries(fields)) if (v !== undefined && v !== "") form.set(k, v);
+    form.set("file", new Blob([new Uint8Array(file.buffer)]), file.filename);
+    const res = await fetch(`${await loopbackUrl(this.app)}/api/v1/admin${path}`, {
+      method: "POST",
+      headers: {
+        cookie: `${SESSION_COOKIE}=${s.id}`,
+        "x-csrf-token": s.csrf,
+        "user-agent": "sgh-mcp",
+        ...(this.clientIp && { "x-forwarded-for": this.clientIp }),
+      },
+      body: form,
+    });
+    return parse<T>(res);
+  }
+}
+
+async function parse<T>(res: Response): Promise<ApiResult<T>> {
+  const raw = await res.text();
+  let json: { data?: T; meta?: Record<string, unknown>; error?: ApiResult["error"] } = {};
+  try {
+    json = raw ? JSON.parse(raw) : {};
+  } catch {
+    json = { error: { code: "BAD_RESPONSE", message: raw.slice(0, 200) } };
+  }
+  return { status: res.status, ok: res.ok, data: json.data, meta: json.meta, error: json.error };
 }

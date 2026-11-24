@@ -14,20 +14,23 @@ import { deleteStoredVariants, processImage, storeVariants, toMediaRef } from ".
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: LIMITS.uploadBytesMax, files: 1, fields: 10 } });
 
+const MEDIA_CATEGORIES = ["general", "tournament", "sensitivity", "article", "device", "weapon", "resource", "ad"] as const;
+
 const metaSchema = z.object({
   alt: z.string().trim().min(3, "Describe the image for screen readers (alt text)").max(250),
   caption: z.string().trim().max(300).optional(),
   credit: z.string().trim().max(200).optional(),
   licence: z.enum(["original", "licensed", "press_kit", "user_submitted"]),
   licenceNotes: z.string().trim().max(500).optional(),
-  category: z.enum(["general", "tournament", "sensitivity", "article", "device", "weapon", "resource", "ad"]).default("general"),
+  category: z.enum(MEDIA_CATEGORIES).default("general"),
 });
 
 const listSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(30),
   q: z.string().trim().max(100).optional(),
-  category: metaSchema.shape.category.optional(),
+  // Not metaSchema.shape.category: its .default("general") would silently filter every list to "general".
+  category: z.enum(MEDIA_CATEGORIES).optional(),
   unused: z.enum(["true", "false"]).optional(),
 });
 
