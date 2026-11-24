@@ -68,3 +68,5 @@ OAuth requires HTTPS. If `SITE_URL` is plain HTTP (for example, a server reached
   - no password login for agents; suspend → 401
   - the full OAuth flow with consent, PKCE, single-use codes and refresh rotation
   - disconnect
+
+Day-to-day use with Claude (master prompt, task prompts, review routine, legal-page checklist): [../ai-content-playbook.md](../ai-content-playbook.md).
