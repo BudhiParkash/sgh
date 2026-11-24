@@ -1,0 +1,11 @@
+packages:
+  - frontend
+  - backend
+  - shared
+onlyBuiltDependencies:
+  - sharp
+  - esbuild
+  - "@tailwindcss/oxide"
+  - unrs-resolver
+  - argon2
+  - mongodb-memory-server

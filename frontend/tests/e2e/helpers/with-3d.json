@@ -1,0 +1,6 @@
+{
+  "cookies": [
+    { "name": "sgh_consent", "value": "%7B%22v%22%3A1%2C%22analytics%22%3Afalse%2C%22ads%22%3Afalse%2C%22ts%22%3A1%7D", "domain": "localhost", "path": "/", "expires": -1, "httpOnly": false, "secure": false, "sameSite": "Lax" }
+  ],
+  "origins": []
+}

@@ -1,0 +1,8 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "UploadReleases", "Effect": "Allow", "Action": ["s3:PutObject"], "Resource": "arn:aws:s3:::<ARTIFACT_BUCKET>/releases/*" },
+    { "Sid": "RunDeployViaSSM", "Effect": "Allow", "Action": "ssm:SendCommand", "Resource": ["arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:instance/<INSTANCE_ID>", "arn:aws:ssm:ap-south-1::document/AWS-RunShellScript"] },
+    { "Sid": "ReadDeployResult", "Effect": "Allow", "Action": ["ssm:GetCommandInvocation", "ssm:ListCommandInvocations"], "Resource": "*" }
+  ]
+}

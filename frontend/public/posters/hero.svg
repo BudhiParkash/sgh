@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" fill="none">
+  <defs>
+    <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e1b4b"/><stop offset=".55" stop-color="#312e81"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#8b5cf6" stop-opacity=".35"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
+  </defs>
+  <circle cx="400" cy="320" r="300" fill="url(#glow)"/>
+  <g stroke-width="2.5" opacity=".75">
+    <polygon points="400,90 600,205 600,435 400,550 200,435 200,205" stroke="#8b5cf6" transform="rotate(8 400 320) scale(1 .42) translate(0 440)"/>
+    <polygon points="400,40 650,185 650,455 400,600 150,455 150,185" stroke="#3b82f6" transform="rotate(-6 400 320) scale(1 .4) translate(0 480)"/>
+  </g>
+  <g transform="translate(400 320) rotate(-14) skewY(4)">
+    <rect x="-95" y="-190" width="190" height="380" rx="22" fill="#14151f" stroke="url(#edge)" stroke-width="2"/>
+    <rect x="-86" y="-181" width="172" height="362" rx="16" fill="url(#scr)"/>
+    <g stroke="#a78bfa" stroke-opacity=".6" stroke-width="2.5"><circle r="30"/><path d="M0-62v24M0 38v24M-62 0h24M38 0h24"/></g>
+    <rect x="-70" y="140" width="80" height="6" fill="#22d3ee"/>
+  </g>
+  <g>
+    <path d="M140 150l18 10-18 10-18-10z" fill="#8b5cf6" opacity=".9"/>
+    <path d="M660 120l14 8-14 8-14-8z" fill="#8b5cf6" opacity=".8"/>
+    <path d="M690 470l20 11-20 11-20-11z" fill="#7c3aed" opacity=".85"/>
+    <path d="M110 470l12 7-12 7-12-7z" fill="#a78bfa" opacity=".7"/>
+    <polygon points="610,260 626,268 626,286 610,294 594,286 594,268" stroke="#60a5fa" stroke-opacity=".6" stroke-width="1.5"/>
+    <polygon points="190,330 202,336 202,350 190,356 178,350 178,336" stroke="#60a5fa" stroke-opacity=".6" stroke-width="1.5"/>
+    <polygon points="560,560 570,565 570,577 560,582 550,577 550,565" stroke="#60a5fa" stroke-opacity=".5" stroke-width="1.5"/>
+  </g>
+</svg>

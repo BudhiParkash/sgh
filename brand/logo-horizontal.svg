@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 64" width="360" height="64" role="img" aria-labelledby="t">
+  <title id="t">Shivanshi Gaming Hub</title>
+  <defs>
+    <linearGradient id="sgh-g" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A78BFA"/>
+      <stop offset="0.55" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4.5 55.8 18.25v27.5L32 59.5 8.2 45.75v-27.5Z" fill="#0F1016" stroke="url(#sgh-g)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M43.5 20.5H26.2l-5 5.6 4.6 5.4h12.8l4.6 5.4-5 5.6H30" fill="none" stroke="url(#sgh-g)" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square"/>
+  <path d="M25 42.5h-5" stroke="#22D3EE" stroke-width="5" stroke-linecap="square"/>
+  <text x="74" y="33" fill="#ECEDF3" font-family="'Space Grotesk', 'Inter', system-ui, sans-serif" font-size="26" font-weight="700" letter-spacing="1.5">SHIVANSHI</text>
+  <text x="75" y="52" fill="#9A9DB0" font-family="'Space Grotesk', 'Inter', system-ui, sans-serif" font-size="12.5" font-weight="500" letter-spacing="6.2">GAMING HUB</text>
+</svg>

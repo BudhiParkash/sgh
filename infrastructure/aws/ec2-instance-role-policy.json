@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "ReadAppSecrets", "Effect": "Allow", "Action": ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"], "Resource": "arn:aws:ssm:ap-south-1:<ACCOUNT_ID>:parameter/sgh/prod/*" },
+    { "Sid": "DecryptSecrets", "Effect": "Allow", "Action": "kms:Decrypt", "Resource": "arn:aws:kms:ap-south-1:<ACCOUNT_ID>:key/<SSM_KMS_KEY_ID>" },
+    { "Sid": "MediaReadWrite", "Effect": "Allow", "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"], "Resource": "arn:aws:s3:::media.shivanshigaming.com/*" },
+    { "Sid": "ReadReleases", "Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::<ARTIFACT_BUCKET>/releases/*" },
+    { "Sid": "WriteConfigBackups", "Effect": "Allow", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::<BACKUP_BUCKET>/config/*" },
+    { "Sid": "CloudWatchLogsAndMetrics", "Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:PutLogEvents", "logs:CreateLogGroup", "cloudwatch:PutMetricData"], "Resource": "*" }
+  ]
+}

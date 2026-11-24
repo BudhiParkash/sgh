@@ -1,0 +1,82 @@
+name: Deploy
+
+# main → staging automatically; tags v*.*.* → production (requires approval in the
+# "production" GitHub environment). Same artifact is promoted; nothing is rebuilt on the server.
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # OIDC → AWS (no long-lived AWS keys in GitHub)
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    environment: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || 'staging' }}
+    outputs:
+      sha: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.34.9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Build backend
+        run: pnpm --filter @sgh/backend run build
+      - name: Build frontend
+        run: pnpm --filter @sgh/frontend run build
+        env:
+          SITE_ENV: ${{ vars.SITE_ENV }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_MEDIA_ORIGIN: ${{ vars.NEXT_PUBLIC_MEDIA_ORIGIN }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      - name: Package release (no node_modules; installed on the server)
+        run: |
+          tar -czf release.tar.gz \
+            package.json pnpm-lock.yaml pnpm-workspace.yaml \
+            shared \
+            backend/package.json backend/dist \
+            frontend/package.json frontend/next.config.ts frontend/public frontend/.next \
+            infrastructure \
+            --exclude=frontend/.next/cache
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - run: aws s3 cp release.tar.gz "s3://${{ vars.ARTIFACT_BUCKET }}/releases/${{ github.sha }}.tar.gz"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || 'staging' }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - name: Run deploy.sh on the instance (SSM — no SSH port open)
+        run: |
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy ${{ needs.build.outputs.sha }}" \
+            --parameters commands="[\"sudo -iu sgh env SGH_ENV=${{ vars.SGH_ENV }} SGH_ARTIFACT_BUCKET=${{ vars.ARTIFACT_BUCKET }} bash -c 'mkdir -p /tmp/sgh-bootstrap && aws s3 cp s3://${{ vars.ARTIFACT_BUCKET }}/releases/${{ needs.build.outputs.sha }}.tar.gz - | tar -xz -C /tmp/sgh-bootstrap infrastructure/scripts && bash /tmp/sgh-bootstrap/infrastructure/scripts/deploy.sh ${{ needs.build.outputs.sha }}'\"]" \
+            --query Command.CommandId --output text)
+          aws ssm wait command-executed --command-id "$CMD_ID" --instance-id "${{ vars.EC2_INSTANCE_ID }}" || true
+          STATUS=$(aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "${{ vars.EC2_INSTANCE_ID }}" --query Status --output text)
+          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "${{ vars.EC2_INSTANCE_ID }}" --query StandardOutputContent --output text
+          test "$STATUS" = "Success"
+      - name: Purge Cloudflare HTML cache
+        if: success()
+        run: |
+          curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/${{ vars.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_PURGE_TOKEN }}" -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' > /dev/null
+      - name: Smoke test
+        run: |
+          curl -fsS "${{ vars.NEXT_PUBLIC_SITE_URL }}/api/v1/health"
+          curl -fsS -o /dev/null "${{ vars.NEXT_PUBLIC_SITE_URL }}/"

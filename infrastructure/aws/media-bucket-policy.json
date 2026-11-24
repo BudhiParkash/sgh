@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudflareCanReadPublicMediaOnly",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::media.shivanshigaming.com/public/*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": ["<paste https://www.cloudflare.com/ips-v4 and ips-v6 ranges here — update when Cloudflare changes them>"]
+        }
+      }
+    }
+  ]
+}

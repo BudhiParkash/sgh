@@ -1,0 +1,19 @@
+/** Imports every Mongoose model (used by the worker and scripts that don't build the HTTP app). */
+import "./admins/admin.model.js";
+import "./admins/role.model.js";
+import "./audit/audit.model.js";
+import "./articles/article.model.js";
+import "./categories/category.model.js";
+import "./games/game.model.js";
+import "./media/media.model.js";
+import "./redirects/redirect.model.js";
+import "./sensitivity/code.model.js";
+import "./sensitivity/config.model.js";
+import "./sensitivity/device.model.js";
+import "./sensitivity/scope.model.js";
+import "./sensitivity/weapon.model.js";
+import "./settings/settings.model.js";
+import "./tags/tag.model.js";
+import "./tournaments/tournament.model.js";
+import "./legal/legal.model.js";
+import "./inbox/inbox.models.js";
