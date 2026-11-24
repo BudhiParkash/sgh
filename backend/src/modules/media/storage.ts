@@ -24,7 +24,11 @@ class S3Storage implements Storage {
   }
 }
 
-/** Local filesystem storage for development/tests (served by the API at /media in non-production). */
+/**
+ * Local filesystem storage, used whenever S3_BUCKET is unset: development/tests, or a single server that keeps
+ * uploads on disk (set LOCAL_MEDIA_DIR to an absolute path outside the code folder, serve it at /media/ in Nginx,
+ * and back it up). Public URLs are `${SITE_URL}/media/<key>`.
+ */
 export const LOCAL_MEDIA_DIR = resolve(process.env.LOCAL_MEDIA_DIR ?? "var/media");
 class LocalStorage implements Storage {
   async put(key: string, body: Buffer) {

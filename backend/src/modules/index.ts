@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import type { Redis } from "ioredis";
-import { isProd } from "../config/env.js";
+import { env } from "../config/env.js";
 import type { Cache } from "../lib/cache.js";
 import { adminUserRoutes, roleRoutes } from "./admins/admin.routes.js";
 import type { SessionStore } from "./auth/session.service.js";
@@ -149,6 +149,7 @@ export function registerModules({ publicApi, admin, deps }: { publicApi: Router;
   publicApi.use("/", inboxPublicRoutes(deps.redis));
   publicApi.use("/", taxonomyPublicRoutes(cache));
 
-  // Local media files (development only — production serves media from S3 via Cloudflare).
-  if (!isProd) publicApi.use("/media-files", express.static(LOCAL_MEDIA_DIR, { immutable: true, maxAge: "1y", fallthrough: false }));
+  // Local media files: used whenever no S3 bucket is configured (development, or a single server that keeps
+  // uploads on disk — Nginx should serve LOCAL_MEDIA_DIR at /media/ directly; this is the fallback).
+  if (!env.S3_BUCKET) publicApi.use("/media-files", express.static(LOCAL_MEDIA_DIR, { immutable: true, maxAge: "1y", fallthrough: false }));
 }
