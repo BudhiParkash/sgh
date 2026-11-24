@@ -27,17 +27,24 @@ export function mcpRoutes(getApp: () => Express, redis: Redis, sessions: Session
   const site = new URL(env.SITE_URL);
   const resource = new URL("/mcp", site);
 
-  r.use(
-    mcpAuthRouter({
-      provider,
-      issuerUrl: site,
-      resourceServerUrl: resource,
-      scopesSupported: ["mcp"],
-      resourceName: "Shivanshi Gaming Hub",
-      serviceDocumentationUrl: new URL("/about", site),
-    }),
-  );
-  r.use(cookieParser(), consentRoutes(redis, sessions, provider));
+  // OAuth 2.1 requires an HTTPS issuer (localhost excepted). On a plain-HTTP deployment (e.g. a server reached by IP
+  // before the domain + TLS are set up) the "Connect" flow is disabled; personal access tokens still work.
+  const oauthEnabled = site.protocol === "https:" || site.hostname === "localhost" || site.hostname === "127.0.0.1";
+  if (oauthEnabled) {
+    r.use(
+      mcpAuthRouter({
+        provider,
+        issuerUrl: site,
+        resourceServerUrl: resource,
+        scopesSupported: ["mcp"],
+        resourceName: "Shivanshi Gaming Hub",
+        serviceDocumentationUrl: new URL("/about", site),
+      }),
+    );
+    r.use(cookieParser(), consentRoutes(redis, sessions, provider));
+  } else {
+    logger.warn({ siteUrl: env.SITE_URL }, "SITE_URL is not HTTPS: MCP OAuth connect is disabled (personal access tokens still work)");
+  }
 
   const bearer = requireBearerAuth({ verifier: provider, resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(resource) });
   const limit = rateLimit(redis, { name: "mcp", points: 300, durationSec: 60, key: (req) => String(req.auth?.extra?.agentId ?? req.ipHash) });

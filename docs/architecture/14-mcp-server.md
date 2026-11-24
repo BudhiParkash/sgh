@@ -44,6 +44,8 @@ Prompts: `add_tournament`, `write_guide`, `add_sensitivity_setup`.
 | `/oauth/consent` | The human approval step. It requires a signed-in admin with `ai:manage` (Super Admin or Admin, so 2FA is done). The admin picks which AI agent account the assistant acts as. |
 | `/api/v1/admin/ai-agents…` | Admin → AI agents: create, pause or remove agents; create or revoke tokens; disconnect assistants |
 
+OAuth requires HTTPS. If `SITE_URL` is plain HTTP (for example, a server reached by IP before the domain and TLS are set up), the OAuth endpoints and the consent page are not mounted, and the API logs a warning. Personal access tokens still work.
+
 ## Connecting
 1. Admin → **AI agents** → New AI agent (e.g. "Claude").
 2. Then connect from the assistant you use:
