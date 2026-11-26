@@ -1,7 +1,7 @@
 /* Shivanshi Gaming Hub service worker — offline support for pages you've visited (incl. saved setups).
    Strategy: static assets cache-first; pages network-first with cached fallback; never caches /admin or the API's
    non-GET requests; falls back to /offline when nothing is cached. Bump VERSION to invalidate. */
-const VERSION = "sgh-v3";
+const VERSION = "sgh-v4";
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const PRECACHE = ["/offline", "/icon.svg", "/icons/192", "/posters/hero.svg"];

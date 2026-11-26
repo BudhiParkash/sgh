@@ -77,13 +77,13 @@ function PlaySettings() {
       <h2 className="text-lg font-bold">Daily spin, streak and redemption rules</h2>
       <p className="text-sm text-muted">Average spin ≈ <strong>{avg.toFixed(1)} SGC</strong> per day per player (plus streak bonuses). Price rewards with this in mind.</p>
       <div className="grid gap-6 md:grid-cols-2">
-        <div>
+        <div className="min-w-0">
           <h3 className="mb-2 text-sm font-semibold">Wheel segments (coins · weight)</h3>
           <ul className="flex flex-col gap-2">
             {cfg.spinOutcomes.map((o, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm">
-                <Input aria-label={`Segment ${i + 1} coins`} type="number" min={1} value={o.coins} onChange={(e) => upd((c) => ((c.spinOutcomes[i]!.coins = Number(e.target.value)), c))} className="w-24" />
-                <Input aria-label={`Segment ${i + 1} weight`} type="number" min={1} value={o.weight} onChange={(e) => upd((c) => ((c.spinOutcomes[i]!.weight = Number(e.target.value)), c))} className="w-24" />
+              <li key={i} className="flex flex-wrap items-center gap-2 text-sm">
+                <Input aria-label={`Segment ${i + 1} coins`} type="number" min={1} value={o.coins} onChange={(e) => upd((c) => ((c.spinOutcomes[i]!.coins = Number(e.target.value)), c))} className="w-20 sm:w-24" />
+                <Input aria-label={`Segment ${i + 1} weight`} type="number" min={1} value={o.weight} onChange={(e) => upd((c) => ((c.spinOutcomes[i]!.weight = Number(e.target.value)), c))} className="w-20 sm:w-24" />
                 <span className="text-muted">{((o.weight / totalWeight) * 100).toFixed(1)}%</span>
                 <Button size="sm" variant="ghost" disabled={cfg.spinOutcomes.length <= 2} onClick={() => upd((c) => ((c.spinOutcomes = c.spinOutcomes.filter((_, j) => j !== i)), c))}>Remove</Button>
               </li>
@@ -91,10 +91,10 @@ function PlaySettings() {
           </ul>
           <Button size="sm" variant="secondary" className="mt-2" disabled={cfg.spinOutcomes.length >= 12} onClick={() => upd((c) => (c.spinOutcomes.push({ coins: 10, weight: 10 }), c))}>Add segment</Button>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-3">
           <h3 className="text-sm font-semibold">Streak bonuses (day of the 7-day cycle · coins)</h3>
           {cfg.streakBonuses.map((b, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm">
+            <div key={i} className="flex flex-wrap items-center gap-2 text-sm">
               <Input aria-label="Day" type="number" min={2} max={7} value={b.day} onChange={(e) => upd((c) => ((c.streakBonuses[i]!.day = Number(e.target.value)), c))} className="w-20" />
               <Input aria-label="Bonus coins" type="number" min={1} value={b.coins} onChange={(e) => upd((c) => ((c.streakBonuses[i]!.coins = Number(e.target.value)), c))} className="w-24" />
               <Button size="sm" variant="ghost" onClick={() => upd((c) => ((c.streakBonuses = c.streakBonuses.filter((_, j) => j !== i)), c))}>Remove</Button>

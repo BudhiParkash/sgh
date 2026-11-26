@@ -122,6 +122,17 @@
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: calc(var(--header-h) + 16px);
   }
+  /* Mobile safety net: nothing (3D canvases, glows, long words, wide widgets) may make the page pan sideways.
+     `clip` doesn't create a scroll container, so the sticky header keeps working. Real scrollers (tables,
+     carousels) keep their own overflow-x: auto. */
+  html,
+  body {
+    overflow-x: clip;
+  }
+  @supports not (overflow-x: clip) {
+    body { overflow-x: hidden; }
+  }
+  img, video, canvas, iframe, svg { max-width: 100%; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -220,6 +231,7 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--text);
   line-height: 1.75;
   max-width: 72ch;
+  overflow-wrap: anywhere; /* long URLs / unbroken words wrap instead of widening the page */
   & > * + * { margin-top: 1em; }
   & h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2em; }
   & h3 { font-size: 1.2rem; font-weight: 600; margin-top: 1.6em; }

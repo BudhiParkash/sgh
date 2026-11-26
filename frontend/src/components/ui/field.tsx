@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const controlBase =
-  "w-full rounded-md border border-border-strong bg-surface-1 px-3.5 text-base text-text placeholder:text-subtle transition-colors duration-[var(--dur-fast)] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50 aria-[invalid=true]:border-danger";
+  "w-full min-w-0 max-w-full rounded-md border border-border-strong bg-surface-1 px-3.5 text-base text-text placeholder:text-subtle transition-colors duration-[var(--dur-fast)] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50 aria-[invalid=true]:border-danger";
 
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return <label className={cn("text-sm font-medium text-text", className)} {...props} />;
@@ -24,8 +24,8 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
  */
 export function Select({ className, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <div className="relative">
-      <select className={cn(controlBase, "h-11 appearance-none pr-10", className)} {...props}>
+    <div className="relative min-w-0">
+      <select className={cn(controlBase, "h-11 appearance-none truncate pr-10", className)} {...props}>
         {children}
       </select>
       <ChevronDown
@@ -51,7 +51,7 @@ export function Field({ id, label, hint, error, required, children }: FieldProps
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <Label htmlFor={id} id={`${id}-label`}>
         {label}
         {required && (
