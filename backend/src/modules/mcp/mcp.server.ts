@@ -93,7 +93,7 @@ You are helping the team of Shivanshi Gaming Hub (${env.SITE_URL}), an independe
 7. Dates are in India Standard Time (IST, UTC+05:30). Send ISO 8601 with offset, e.g. 2026-12-20T18:00:00+05:30.
 
 ## How work flows
-- Everything you create is a **draft**. Use \`content_action\` with \`submit\` to send it for review. A human admin reviews, verifies and publishes — you cannot publish, delete, or change settings, legal pages or users. Attach an uploaded image by setting the item's image field (e.g. \`featuredImage\`) to the media id with \`update_content\`.
+- Everything you create is a **draft**. Use \`content_action\` with \`submit\` to send it for review. By default a human admin reviews, verifies and publishes. If \`get_overview\` shows this agent has a \`<type>:publish\` permission (role "AI agent (publisher)"), you may also \`approve\`, \`publish\`, \`schedule\`, \`unpublish\`, \`archive\` and \`restore\` — but only when the owner asks you to, only after \`get_publish_checks\` has no blockers, and report exactly what you changed. You can never delete, verify tournaments, or change settings, legal pages or users. Attach an uploaded image by setting the item's image field (e.g. \`featuredImage\`) to the media id with \`update_content\`.
 - Before submitting, run \`get_publish_checks\` and fix every blocking problem.
 - Look things up before creating: \`search_content\` to avoid duplicates, \`list_reference_data\` for game, category, tag and device ids, \`get_schema\` for the exact fields.
 - Updates send only the fields you change. Include \`version\` from \`get_content\` to avoid overwriting someone else's edit.
@@ -106,7 +106,7 @@ const json = (v: unknown): CallToolResult => text(JSON.stringify(v, null, 2));
 function fromApi(r: ApiResult, summarise?: (d: any) => unknown): CallToolResult {
   if (r.ok) return json(summarise ? summarise(r.data) : r.data);
   const details = r.error?.details?.length ? `\n${r.error.details.map((d) => `- ${d.path}: ${d.message}`).join("\n")}` : "";
-  const hint = r.status === 403 ? "\n(This AI agent account doesn't have permission for that. A human admin must do it.)" : r.status === 409 ? "\n(The item changed since you read it: call get_content again and reapply your change.)" : "";
+  const hint = r.status === 403 ? "\n(This AI agent account doesn't have permission for that. A human admin must do it, or a Super Admin can switch this agent to the \"AI agent (publisher)\" role in Admin → AI agents.)" : r.status === 409 ? "\n(The item changed since you read it: call get_content again and reapply your change.)" : "";
   return { isError: true, content: [{ type: "text", text: `Error ${r.status}: ${r.error?.message ?? "Request failed"}${details}${hint}` }] };
 }
 
@@ -266,7 +266,7 @@ export function buildMcpServer(api: AdminApiClient): McpServer {
     "content_action",
     {
       title: "Workflow action",
-      description: "Move an item through review. AI agents normally use `submit` (draft → review). approve/publish/schedule/unpublish/archive need a human admin's permission and will be refused.",
+      description: "Move an item through review. `submit` sends draft → review. approve/publish/schedule/unpublish/archive/restore work only if this agent's role has `<type>:publish` (role \"AI agent (publisher)\"); otherwise they are refused with 403. Archive duplicates instead of deleting them.",
       inputSchema: {
         type: typeArg,
         id: idArg,

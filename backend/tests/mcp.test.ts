@@ -8,6 +8,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { hashPassword } from "../src/lib/password.js";
 import { AdminModel } from "../src/modules/admins/admin.model.js";
+import { RoleModel } from "../src/modules/admins/role.model.js";
 import { agentPermissionFilter } from "../src/modules/admins/permissions.js";
 import { AuditLogModel } from "../src/modules/audit/audit.model.js";
 import { GameModel } from "../src/modules/games/game.model.js";
@@ -118,6 +119,33 @@ describe("AI agents & MCP", () => {
     await send(owner, "delete", `/${agentId}/tokens/${list.body.data[0].tokens[0].id}`).expect(204);
     const after = await request(app).post("/mcp").set("Authorization", `Bearer ${pat}`).set("Accept", "application/json, text/event-stream").send({ jsonrpc: "2.0", id: 1, method: "tools/list" });
     expect(after.status).toBe(401);
+  });
+
+  it("'AI agent (publisher)' role lets the agent approve and archive (never delete)", async () => {
+    const { owner, agentId } = await setup();
+    const role = await RoleModel.findOne({ key: "ai_publisher" }).lean();
+    expect(role).toBeTruthy();
+    await send(owner, "patch", `/${agentId}`).send({ role: String(role!._id) }).expect(200);
+    const pat = (await send(owner, "post", `/${agentId}/tokens`).send({ name: "Claude", expiresInDays: 30 })).body.data.token as string;
+    const client = await connect(pat);
+    const bgmi = (await GameModel.findOne({ key: "bgmi" }))!;
+    const create = async (name: string) =>
+      JSON.parse(textOf(await client.callTool({ name: "create_content", arguments: { type: "tournament", data: { name, game: String(bgmi._id), organiser: "Example", officialSourceUrl: "https://example.com/x" } } }))).created.id as string;
+
+    const a = await create("Publisher Cup A");
+    expect((await client.callTool({ name: "content_action", arguments: { type: "tournament", id: a, action: "submit" } })).isError).toBeFalsy();
+    expect((await client.callTool({ name: "content_action", arguments: { type: "tournament", id: a, action: "approve" } })).isError).toBeFalsy();
+    expect((await TournamentModel.findById(a).lean())!.workflow!.status).toBe("approved");
+
+    const dup = await create("Publisher Cup Duplicate");
+    expect((await client.callTool({ name: "content_action", arguments: { type: "tournament", id: dup, action: "archive", note: "Duplicate" } })).isError).toBeFalsy();
+    expect((await TournamentModel.findById(dup).lean())!.workflow!.status).toBe("archived");
+
+    const list = await send(owner, "get", "");
+    expect(list.body.data[0].effectivePermissions).toEqual(expect.arrayContaining(["tournament:publish", "article:publish"]));
+    expect(list.body.data[0].effectivePermissions).not.toContain("tournament:delete");
+    expect(list.body.data[0].effectivePermissions).not.toContain("tournament:verify");
+    await client.close();
   });
 
   it("AI agent accounts can't sign in with a password and are hidden from Users; suspending blocks tokens", async () => {

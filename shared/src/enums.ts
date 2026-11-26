@@ -56,6 +56,7 @@ export const ROLES = [
   "tournament_manager",
   "content_writer",
   "ai_agent",
+  "ai_publisher",
 ] as const;
 export type RoleKey = (typeof ROLES)[number];
 
