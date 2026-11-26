@@ -2,7 +2,8 @@ import type { RequestHandler } from "express";
 import { isProd, env } from "../config/env.js";
 import { forbidden, unauthenticated } from "../lib/errors.js";
 import { safeEqual } from "../lib/crypto.js";
-import type { SessionStore } from "../modules/auth/session.service.js";
+import type { SessionData, SessionStore } from "../modules/auth/session.service.js";
+import { RoleModel } from "../modules/admins/role.model.js";
 import type { Permission } from "../modules/admins/permissions.js";
 
 const secureCookies = isProd || env.SITE_URL.startsWith("https://");
@@ -15,12 +16,42 @@ export const sessionCookieOptions = {
   path: "/",
 };
 
+/** Role version + permissions, cached briefly so the check costs at most one small query per role per 30 s. */
+const roleCache = new Map<string, { version: number; permissions: string[]; at: number }>();
+/** Tests: forget cached roles. */
+export const clearRoleCache = () => roleCache.clear();
+async function currentRole(roleKey: string) {
+  const hit = roleCache.get(roleKey);
+  if (hit && Date.now() - hit.at < 30_000) return hit;
+  const role = await RoleModel.findOne({ key: roleKey }).select("version permissions").lean();
+  if (!role) return null;
+  const v = { version: role.version, permissions: role.permissions as string[], at: Date.now() };
+  roleCache.set(roleKey, v);
+  return v;
+}
+
+/**
+ * Keeps a signed-in admin's permissions in step with their role. Roles change when an admin edits one (those
+ * members are signed out) or when a deploy adds permissions to a system role — then the session is refreshed in
+ * place, so new admin sections appear without signing in again. AI agent service sessions are left alone: they
+ * carry a reduced permission set and refresh themselves (modules/mcp/admin-client).
+ */
+async function syncRole(store: SessionStore, id: string, data: SessionData): Promise<void> {
+  if (data.uaHash === "mcp") return;
+  const role = await currentRole(data.roleKey);
+  if (!role || role.version === data.roleVersion) return;
+  data.permissions = role.permissions;
+  data.roleVersion = role.version;
+  await store.update(id, data);
+}
+
 /** Loads the session (if any) for every /admin request. Never rejects by itself. */
 export function loadSession(store: SessionStore): RequestHandler {
   return async (req, _res, next) => {
     const id = req.cookies?.[SESSION_COOKIE] as string | undefined;
     const data = await store.get(id);
     if (data && id) {
+      await syncRole(store, id, data);
       req.session = data;
       req.sessionId = id;
       await store.touch(id, data);

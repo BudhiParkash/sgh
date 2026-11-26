@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { AuditLogModel } from "../src/modules/audit/audit.model.js";
 import { MediaModel } from "../src/modules/media/media.model.js";
 import { RoleModel } from "../src/modules/admins/role.model.js";
+import { clearRoleCache } from "../src/middleware/auth.js";
 import { seedReferenceData } from "../src/modules/seed.js";
 import { createAdmin, makeApp, signIn, signInWith2fa, type Agent } from "./helpers.js";
 
@@ -119,6 +120,19 @@ describe("settings", () => {
 });
 
 describe("admin users & roles", () => {
+  it("a deploy that adds permissions to a system role reaches signed-in admins without a new sign-in", async () => {
+    await createAdmin("editor", "editor@test.local");
+    const a = await signIn(app, "editor@test.local");
+    const me = () => a.agent.get("/api/v1/admin/auth/me").set("X-Forwarded-For", a.ip);
+    expect((await me()).body.data.permissions).not.toContain("room:read");
+    expect((await a.agent.get("/api/v1/admin/rooms").set("X-Forwarded-For", a.ip)).status).toBe(403);
+    // What ensureSystemRoles does on startup when the code's role definition changed.
+    await RoleModel.updateOne({ key: "editor" }, { $push: { permissions: "room:read" }, $inc: { version: 1 } });
+    clearRoleCache();
+    expect((await me()).body.data.permissions).toContain("room:read");
+    expect((await a.agent.get("/api/v1/admin/rooms").set("X-Forwarded-For", a.ip)).status).toBe(200);
+  });
+
   it("creates an admin with a one-time temporary password; role change ends their sessions", async () => {
     const a = await asSuper();
     const editorRole = await RoleModel.findOne({ key: "editor" });
