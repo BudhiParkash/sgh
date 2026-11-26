@@ -1,6 +1,6 @@
 import {
   BarChart3, Crosshair, FileText, FolderTree, Gauge, Image as ImageIcon, Inbox, KeyRound, LayoutDashboard, Link2, Megaphone,
-  Bot, MessageSquare, Scale, ScrollText, Search, Settings, ShieldAlert, Smartphone, Sword, Tags, Trophy, UserCog, Users, Code2, Lock,
+  Bot, Gamepad2, Gift, Ticket, UsersRound, MessageSquare, Scale, ScrollText, Search, Settings, ShieldAlert, Smartphone, Sword, Tags, Trophy, UserCog, Users, Code2, Lock,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -26,6 +26,15 @@ export const ADMIN_NAV: { group: string; items: NavItem[] }[] = [
       { href: "/admin/categories", label: "Categories", perm: "category:read", icon: FolderTree },
       { href: "/admin/tags", label: "Tags", perm: "tag:read", icon: Tags },
       { href: "/admin/media", label: "Media library", perm: "media:read", icon: ImageIcon },
+    ],
+  },
+  {
+    group: "Play",
+    items: [
+      { href: "/admin/rooms", label: "Custom rooms", perm: "room:read", icon: Gamepad2 },
+      { href: "/admin/players", label: "Players", perm: "player:read", icon: UsersRound },
+      { href: "/admin/redemptions", label: "Redemptions", perm: "redemption:read", icon: Ticket },
+      { href: "/admin/rewards", label: "Rewards store", perm: "reward:read", icon: Gift },
     ],
   },
   {

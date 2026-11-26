@@ -22,6 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
 import { Footer } from "@/components/layout/footer";
 import { apiGetOr } from "@/lib/api/server";
 import { Header } from "@/components/layout/header";
+import { SignInDialog } from "@/components/play/sign-in-dialog";
+import { PlayerProvider } from "@/lib/play/context";
 import { SkipLink } from "@/components/layout/skip-link";
 import { RevealObserver } from "@/components/motion/reveal-observer";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
@@ -29,6 +31,7 @@ import { SmoothScroll } from "@/components/motion/smooth-scroll";
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const settings = await loadSettings();
   return (
+    <PlayerProvider>
     <div className="flex min-h-dvh flex-col">
       <JsonLd data={[organizationLd(), websiteLd()]} />
       <SkipLink />
@@ -42,6 +45,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <ServiceWorkerRegister />
       <WebVitals />
       <ConsentManager ga4Id={settings?.analytics?.ga4Id ?? null} />
+      <SignInDialog />
     </div>
+    </PlayerProvider>
   );
 }

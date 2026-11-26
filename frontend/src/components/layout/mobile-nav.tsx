@@ -9,15 +9,17 @@ import { Button } from "@/components/ui/button";
 import { mainNav } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { isActivePath } from "./nav-link";
+import { usePlayer } from "@/lib/play/context";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { me, openSignIn } = usePlayer();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+        <Button variant="ghost" size="icon" className="min-[1180px]:hidden" aria-label="Open menu">
           <Menu className="size-6" aria-hidden="true" />
         </Button>
       </DialogTrigger>
@@ -44,7 +46,23 @@ export function MobileNav() {
               );
             })}
           </ul>
-          <div className="border-t border-border p-4">
+          <div className="flex flex-col gap-2 border-t border-border p-4">
+            {me ? (
+              <Button asChild fullWidth variant="secondary">
+                <Link href="/account" onClick={() => setOpen(false)}>My account · {me.coins.toLocaleString("en-IN")} SGC</Link>
+              </Button>
+            ) : (
+              <Button
+                fullWidth
+                variant="secondary"
+                onClick={() => {
+                  setOpen(false);
+                  openSignIn();
+                }}
+              >
+                Sign in to play
+              </Button>
+            )}
             <Button asChild fullWidth>
               <Link href="/sensitivity" onClick={() => setOpen(false)}>
                 Find Your Sensitivity

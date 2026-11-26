@@ -17,3 +17,4 @@ import "./tags/tag.model.js";
 import "./tournaments/tournament.model.js";
 import "./legal/legal.model.js";
 import "./inbox/inbox.models.js";
+import "./play/play.models.js";

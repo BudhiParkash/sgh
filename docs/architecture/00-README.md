@@ -19,6 +19,7 @@ Prepared: 2026-11-23
 | 12 | [Milestones & effort](12-milestones.md) | 15 |
 | 13 | [Missing information & open decisions](13-missing-information.md) | — |
 | 14 | [MCP server for AI assistants](14-mcp-server.md) | — |
+| 15 | [Play: player accounts, squads, custom rooms, SGC coins, rewards](15-play.md) | — |
 
 ## The ten decisions that shape everything
 

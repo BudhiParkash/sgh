@@ -39,6 +39,8 @@ const schema = z.object({
   MAIL_FROM: z.string().default("Shivanshi Gaming Hub <no-reply@shivanshigaming.com>"),
   /** IndexNow key (Bing/Yandex instant indexing). When unset, no pings are sent. */
   INDEXNOW_KEY: z.string().regex(/^[a-zA-Z0-9-]{8,128}$/).optional(),
+  /** Google OAuth client id (Web) for player sign-in. When unset, player sign-in is disabled. */
+  GOOGLE_CLIENT_ID: z.string().regex(/^[\w-]+\.apps\.googleusercontent\.com$/, "Must be a Google OAuth Web client id").optional(),
   /** Cloudflare Turnstile secret. When unset (dev/test), the bot check is skipped. */
   TURNSTILE_SECRET: z.string().optional(),
 });

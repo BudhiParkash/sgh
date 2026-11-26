@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { MobileNav } from "./mobile-nav";
 import { SavedLink } from "@/components/retention/saved-link";
 import { NavLink } from "./nav-link";
+import { AccountButton } from "@/components/play/account-button";
 
 /**
  * Sticky glass header. Hides while scrolling down and reappears on scroll up
@@ -53,11 +54,11 @@ export function Header() {
           <Logo />
         </Link>
 
-        <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
-            {mainNav.map((item) => (
+        <nav aria-label="Main" className="hidden min-[1180px]:block">
+          <ul className="flex items-center gap-0.5">
+            {mainNav.filter((item) => item.desktop !== false).map((item) => (
               <li key={item.href}>
-                <NavLink href={item.href} className="px-3 py-2">
+                <NavLink href={item.href} className="px-2.5 py-2 whitespace-nowrap">
                   {item.label}
                 </NavLink>
               </li>
@@ -70,9 +71,7 @@ export function Header() {
           <Button asChild variant="ghost" size="icon">
             <Link href="/search" aria-label="Search"><Search className="size-5" aria-hidden="true" /></Link>
           </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/sensitivity">Find Sensitivity</Link>
-          </Button>
+          <AccountButton />
           <MobileNav />
         </div>
       </Container>

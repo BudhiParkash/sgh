@@ -18,12 +18,12 @@ const securityHeaders = [
  */
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://challenges.cloudflare.com https://securepubads.g.doubleclick.net https://pagead2.googlesyndication.com",
-  "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: ${process.env.NEXT_PUBLIC_MEDIA_ORIGIN ?? "https://media.shivanshigaming.com"} https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googlesyndication.com https://i.ytimg.com`,
+  "script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client https://www.googletagmanager.com https://challenges.cloudflare.com https://securepubads.g.doubleclick.net https://pagead2.googlesyndication.com",
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
+  `img-src 'self' data: blob: ${process.env.NEXT_PUBLIC_MEDIA_ORIGIN ?? "https://media.shivanshigaming.com"} https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googlesyndication.com https://i.ytimg.com https://lh3.googleusercontent.com`,
   "font-src 'self'",
-  "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://challenges.cloudflare.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com",
-  "frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com https://*.doubleclick.net https://*.googlesyndication.com",
+  "connect-src 'self' https://accounts.google.com/gsi/ https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://challenges.cloudflare.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com",
+  "frame-src https://accounts.google.com/gsi/ https://www.youtube-nocookie.com https://challenges.cloudflare.com https://*.doubleclick.net https://*.googlesyndication.com",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

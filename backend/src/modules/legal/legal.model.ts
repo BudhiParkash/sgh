@@ -12,6 +12,8 @@ export const LEGAL_SLUGS = [
   "advertising-disclosure",
   "affiliate-disclosure",
   "content-reporting",
+  "custom-room-rules",
+  "sgc-rewards-terms",
 ] as const;
 export type LegalSlug = (typeof LEGAL_SLUGS)[number];
 

@@ -19,14 +19,24 @@ export async function seedReferenceData(): Promise<Record<string, string | numbe
   for (const sc of DEFAULT_SCOPES) await ScopeModel.updateOne({ key: sc.key }, { $setOnInsert: sc }, { upsert: true });
   // Legal drafts are created as unpublished drafts (counsel review required before publishing).
   let legal = 0;
+  let legalRefreshed = 0;
   for (const [slug, d] of Object.entries(LEGAL_DRAFTS)) {
-    if (await LegalPageModel.exists({ slug })) continue;
     const p = processHtml(d.html);
-    await LegalPageModel.create({ slug, title: d.title, content: { html: p.html, headings: p.headings }, reviewedByCounsel: false });
-    legal++;
+    const existing = await LegalPageModel.findOne({ slug }).lean<{ _id: unknown; createdAt?: Date; updatedAt?: Date; version?: number; content?: { html?: string } }>();
+    if (!existing) {
+      await LegalPageModel.create({ slug, title: d.title, content: { html: p.html, headings: p.headings }, reviewedByCounsel: false });
+      legal++;
+      continue;
+    }
+    // Refresh a draft only if nobody has edited or published it (never touches reviewed or human-edited text).
+    const untouched = !existing.version && existing.createdAt && existing.updatedAt && Math.abs(+existing.updatedAt - +existing.createdAt) < 2000;
+    if (untouched && existing.content?.html !== p.html) {
+      await LegalPageModel.collection.updateOne({ _id: existing._id as never }, { $set: { title: d.title, "content.html": p.html, "content.headings": p.headings } });
+      legalRefreshed++;
+    }
   }
   const s = await getSettings();
   for (const [path, value] of Object.entries(OWNER_PROVIDED_DEFAULTS)) if (!s.get(path)) s.set(path, value);
   await s.save();
-  return { roles: "ok", games: DEFAULT_GAMES.length, scopes: DEFAULT_SCOPES.length, categoriesCreated: categories, settings: "ok", legalDraftsCreated: legal };
+  return { roles: "ok", games: DEFAULT_GAMES.length, scopes: DEFAULT_SCOPES.length, categoriesCreated: categories, settings: "ok", legalDraftsCreated: legal, legalDraftsRefreshed: legalRefreshed };
 }

@@ -26,6 +26,14 @@ const updateSchema = z
     ads: z.object({ enabled: z.boolean(), gamNetworkCode: z.union([z.literal(""), z.string().regex(/^\d{4,12}$/)]), personalizedAds: z.boolean() }).partial(),
     disclaimerText: str(600),
     maintenanceMode: z.boolean(),
+    play: z
+      .object({
+        spinOutcomes: z.array(z.object({ coins: z.number().int().min(1).max(1000), weight: z.number().int().min(1).max(1000) })).min(2).max(12),
+        streakBonuses: z.array(z.object({ day: z.number().int().min(2).max(7), coins: z.number().int().min(1).max(1000) })).max(6),
+        redeemMinAccountAgeDays: z.number().int().min(0).max(90),
+        redeemMonthlyCap: z.number().int().min(1).max(30),
+      })
+      .partial(),
     retentionDays: z.object({ contactEnquiries: z.number().int().min(0).max(3650), feedback: z.number().int().min(0).max(3650), reports: z.number().int().min(0).max(3650), privacyRequests: z.number().int().min(0).max(3650), ipHashes: z.number().int().min(1).max(365) }).partial(),
   })
   .partial();

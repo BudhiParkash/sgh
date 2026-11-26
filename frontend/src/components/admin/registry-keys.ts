@@ -1,7 +1,7 @@
 import { RESOURCES } from "@/lib/admin/resources";
 
 /** Dedicated (non-generic) admin pages that exist. */
-const STATIC_PAGES = new Set(["/admin", "/admin/media", "/admin/users", "/admin/roles", "/admin/audit", "/admin/settings", "/admin/account", "/admin/seo", "/admin/ai-agents"]);
+const STATIC_PAGES = new Set(["/admin", "/admin/media", "/admin/users", "/admin/roles", "/admin/audit", "/admin/settings", "/admin/account", "/admin/seo", "/admin/ai-agents", "/admin/rooms", "/admin/players", "/admin/rewards", "/admin/redemptions"]);
 
 /** Only show navigation entries whose page is implemented. */
 export function isAvailable(href: string): boolean {

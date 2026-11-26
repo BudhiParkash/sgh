@@ -34,9 +34,22 @@ describe("legal pages", () => {
     expect(r.missing).toEqual(["Grievance Officer postal address"]);
   });
 
+  it("re-seeding refreshes untouched drafts but never overwrites edited text", async () => {
+    await seedReferenceData();
+    const untouched = await LegalPageModel.findOne({ slug: "terms" });
+    const edited = await LegalPageModel.findOne({ slug: "disclaimer" });
+    // Simulate an old draft text in both; the edited one was also changed by a person later.
+    await LegalPageModel.collection.updateOne({ _id: untouched!._id }, { $set: { "content.html": "<p>old</p>" } });
+    await LegalPageModel.collection.updateOne({ _id: edited!._id }, { $set: { "content.html": "<p>counsel text</p>", updatedAt: new Date(Date.now() + 60_000) } });
+    const r = await seedReferenceData();
+    expect(r.legalDraftsRefreshed).toBe(1);
+    expect((await LegalPageModel.findById(untouched!._id))!.content!.html).toContain("Shivanshi Custom Rooms");
+    expect((await LegalPageModel.findById(edited!._id))!.content!.html).toBe("<p>counsel text</p>");
+  });
+
   it("seeded drafts are unpublished; staging warns, production blocks; publishing versions the page", async () => {
     const a = await admin();
-    expect(await LegalPageModel.countDocuments({ "workflow.status": "draft" })).toBe(10);
+    expect(await LegalPageModel.countDocuments({ "workflow.status": "draft" })).toBe(12);
     expect((await request(app).get("/api/v1/legal/privacy-policy")).status).toBe(404);
     const doc = await LegalPageModel.findOne({ slug: "privacy-policy" });
     const checks = await a.agent.get(`${A}/legal/${doc!.id}/checks`).set("X-Forwarded-For", a.ip);

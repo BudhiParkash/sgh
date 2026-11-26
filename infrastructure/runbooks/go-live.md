@@ -98,6 +98,20 @@ Create one parameter per variable under the paths `/sgh/prod/backend/<NAME>` and
 6. Optional — AI assistants: Admin → **AI agents** → New AI agent, then connect Claude/ChatGPT (instructions on that page; details in `docs/architecture/14-mcp-server.md`). Everything they create arrives as drafts for you to review.
 7. Add real content: tested sensitivity setups, devices, gun guides, tournaments with official announcement links, and articles.
 
+## 7b. Play features (custom rooms, daily spin, rewards)
+1. **Google sign-in key.**
+   - Google Cloud Console → APIs & Services → **OAuth consent screen**: External, app name "Shivanshi Gaming Hub", support email, link to the Privacy Policy, scopes `openid email profile` only. Publish the app.
+   - Then **Credentials → Create credentials → OAuth client ID → Web application**.
+     - Authorised JavaScript origins: `https://shivanshigaming.com`.
+     - No redirect URIs are needed.
+   - Put the client ID into **both** `GOOGLE_CLIENT_ID` (backend) and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (frontend), then rebuild the frontend.
+2. **Legal.** Have counsel review the *Custom Room Rules*, *SGC Rewards Terms* and the updated *Privacy Policy* and *Terms*, then publish them. Players accept them when they sign up.
+3. **Rewards.**
+   - Only list vouchers you have bought from authorised partners.
+   - Set the stock to the number of codes you hold.
+   - Check the spin and streak numbers in Admin → Rewards store before launch.
+4. **Optional.** Email KRAFTON India Esports about running community custom rooms with prizes.
+
 ## 8. Search engines
 1. **Search Console:** add a Domain property and verify it with the DNS TXT record in Cloudflare. Submit `https://shivanshigaming.com/sitemap.xml`.
 2. **Bing Webmaster Tools:** import from Search Console.

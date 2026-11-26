@@ -27,6 +27,31 @@ const settingsSchema = new Schema(
     ads: { enabled: { type: Boolean, default: false }, gamNetworkCode: { type: String, default: "" }, personalizedAds: { type: Boolean, default: false } },
     disclaimerText: { type: String, default: INDEPENDENCE_DISCLAIMER },
     maintenanceMode: { type: Boolean, default: false },
+    /** Play: daily spin, streak bonuses and redemption guards (docs/architecture/15-play.md). */
+    play: {
+      spinOutcomes: {
+        type: [{ _id: false, coins: { type: Number, required: true }, weight: { type: Number, required: true } }],
+        default: () => [
+          { coins: 5, weight: 30 },
+          { coins: 10, weight: 25 },
+          { coins: 15, weight: 18 },
+          { coins: 20, weight: 12 },
+          { coins: 30, weight: 8 },
+          { coins: 50, weight: 5 },
+          { coins: 100, weight: 2 },
+        ],
+      },
+      /** Streak days repeat in a 7-day cycle; a bonus is added on these days. */
+      streakBonuses: {
+        type: [{ _id: false, day: { type: Number, required: true }, coins: { type: Number, required: true } }],
+        default: () => [
+          { day: 3, coins: 10 },
+          { day: 7, coins: 50 },
+        ],
+      },
+      redeemMinAccountAgeDays: { type: Number, default: 7 },
+      redeemMonthlyCap: { type: Number, default: 2 },
+    },
     /** Data retention (days) per data type — set with legal counsel (0 = keep until manually deleted). */
     retentionDays: {
       contactEnquiries: { type: Number, default: 0 },

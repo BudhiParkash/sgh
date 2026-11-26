@@ -17,5 +17,5 @@ export function sitemapIndex(items: { loc: string; updatedAt?: string | null }[]
 export const xml = (s: string) => new Response(s, { headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=600, s-maxage=3600" } });
 
 /** Hub pages always listed in the "pages" sitemap. */
-export const STATIC_PATHS = ["/", "/tournaments", "/tournaments/upcoming", "/tournaments/ongoing", "/tournaments/completed", "/sensitivity", "/sensitivity/devices", "/sensitivity/guns", "/sensitivity/codes", "/news", "/guides", "/about", "/contact"];
+export const STATIC_PATHS = ["/", "/tournaments", "/tournaments/upcoming", "/tournaments/ongoing", "/tournaments/completed", "/sensitivity", "/sensitivity/devices", "/sensitivity/guns", "/sensitivity/codes", "/custom-rooms", "/rewards", "/news", "/guides", "/about", "/contact"];
 export const SITEMAP_TYPES = ["pages", "tournaments", "sensitivity", "devices", "articles"] as const;

@@ -17,6 +17,8 @@ import { healthRoutes } from "./modules/health/health.routes.js";
 import { registerModules, type AppDeps } from "./modules/index.js";
 import { Cache } from "./lib/cache.js";
 import { mcpRoutes } from "./modules/mcp/mcp.routes.js";
+import { PlayerSessionStore } from "./modules/play/player-auth.js";
+import { playerRoutes } from "./modules/play/play.routes.js";
 
 export interface CreateAppOptions {
   redis: Redis;
@@ -40,7 +42,8 @@ export function createApp({ redis }: CreateAppOptions): Express {
   app.use(rejectOperatorKeys);
   app.use(originGuard);
 
-  const deps: AppDeps = { redis, sessions, cache: new Cache(redis) };
+  const playerSessions = new PlayerSessionStore(redis);
+  const deps: AppDeps = { redis, sessions, cache: new Cache(redis), playerSessions };
   const api = Router();
 
   api.use("/health", healthRoutes(redis));
@@ -63,6 +66,8 @@ export function createApp({ redis }: CreateAppOptions): Express {
   registerModules({ publicApi, admin, deps });
 
   api.use("/admin", admin);
+  // Player accounts (public site sign-in): own session cookie + CSRF, separate from admin sessions.
+  api.use("/player", playerRoutes(redis, playerSessions));
   api.use("/", publicApi);
 
   if (apiDocsEnabled) {

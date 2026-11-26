@@ -33,6 +33,11 @@ export const PERMISSION_CATALOG = {
   cache: ["purge"],
   /** Manage AI agents, their access tokens and MCP connections. */
   ai: ["manage"],
+  /** Play (docs/architecture/15-play.md): player accounts, custom rooms, rewards store, redemption queue. */
+  player: ["read", "update"],
+  room: ["read", "create", "update", "delete", "results"],
+  reward: ["read", "create", "update", "delete"],
+  redemption: ["read", "update"],
 } as const;
 
 export type PermissionModule = keyof typeof PERMISSION_CATALOG;
@@ -73,6 +78,10 @@ const CONTENT_ADMIN: Permission[] = [
   "audit:read",
   "cache:purge",
   "ai:manage",
+  ...all("player"),
+  ...all("room"),
+  ...all("reward"),
+  ...all("redemption"),
 ];
 
 export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permission[] }> = {
@@ -111,6 +120,8 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
     permissions: [
       "dashboard:read",
       ...all("tournament"),
+      ...all("room"),
+      "player:read",
       ...pick("game:read", "media:read", "media:create", "media:update", "article:read", "article:create", "article:update", "category:read", "tag:read", "report:read", "report:update"),
     ],
   },
@@ -171,6 +182,6 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
  */
 export function agentPermissionFilter(p: string): boolean {
   const [mod, action] = p.split(":");
-  if (["admin", "role", "audit", "settings", "legal", "cache", "ai", "feedback", "enquiry", "report", "privacy_request", "ad", "affiliate"].includes(mod!)) return false;
+  if (["admin", "role", "audit", "settings", "legal", "cache", "ai", "feedback", "enquiry", "report", "privacy_request", "ad", "affiliate", "player", "room", "reward", "redemption"].includes(mod!)) return false;
   return action !== "delete";
 }

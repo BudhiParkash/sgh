@@ -25,7 +25,7 @@ export interface Paged<T> {
 }
 
 interface Options {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   form?: FormData;
   ifMatch?: number;

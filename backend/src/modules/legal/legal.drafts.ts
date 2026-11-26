@@ -20,21 +20,23 @@ export const LEGAL_DRAFTS: Record<LegalSlug, { title: string; html: string }> = 
 <li><strong>Content reports and copyright notices</strong> — your name, email, the page concerned, your description and any evidence links, to handle the report as required by law.</li>
 <li><strong>Privacy requests</strong> — your email address and request details, to verify and fulfil your request.</li>
 <li><strong>Share-code submissions</strong> — the code, phone model and the display name you choose (it does not need to be your real name).</li>
+<li><strong>Player accounts (optional, 18+ only)</strong> — if you sign in with Google to play Shivanshi Custom Rooms or collect SGC coins, we receive your Google account ID, name, email address and profile picture. You add a display name, your BGMI in-game name and your BGMI Character ID. We record that you confirmed you are 18 or older and accepted our terms, plus your squads, room registrations and results, your SGC coin history and reward redemptions. Voucher codes we send you are stored encrypted. We use hashed IP addresses to detect duplicate or fraudulent accounts.</li>
 <li><strong>Security data</strong> — your IP address is used briefly to protect the site from abuse (rate limiting and spam prevention). We store only a keyed one-way hash of it, kept for {{retention.ipHashes}}.</li>
 <li><strong>Analytics</strong> — only if you accept analytics cookies, we use Google Analytics 4 to understand which pages are useful. Advertising features and Google signals are switched off.</li>
 <li><strong>Advertising</strong> — if advertising is enabled, ads are non-personalised unless you have accepted advertising cookies.</li>
 </ul>
-<p>We do not offer player accounts, we do not collect your date of birth, game ID, phone number or payment details, and we never sell personal data.</p>
+<p>We do not collect your date of birth, phone number or payment details, and we never sell personal data. Room results show your team name and in-game name publicly; your email address and Character ID are never shown publicly.</p>
 <h2>Children</h2>
-<p>Many gamers are under 18. We do not knowingly track or profile children or show them targeted advertising. If you are under 18, please ask a parent or guardian before sending us any form. If you believe a child has sent us personal data, contact us and we will delete it.</p>
+<p>Player accounts are for people aged 18 or older only. Many gamers are under 18: we do not knowingly create accounts for, track or profile children or show them targeted advertising. If you are under 18, please ask a parent or guardian before sending us any form. If you believe a child has created an account or sent us personal data, contact us and we will delete it.</p>
 <h2>Who we share data with</h2>
-<p>We use service providers who process data on our behalf: Amazon Web Services (hosting, India region), MongoDB Atlas (database, India region), Cloudflare (content delivery and security), an email delivery provider (to send replies), and Google (only if you consent to analytics or advertising cookies). We may disclose information where required by law.</p>
+<p>We use service providers who process data on our behalf: Amazon Web Services (hosting, India region), our database host, Cloudflare (content delivery and security), an email delivery provider (to send replies), Google (sign-in for player accounts, and analytics or advertising only if you consent to those cookies), and YouTube (embedded live streams of custom rooms). We may disclose information where required by law.</p>
 <h2>How long we keep it</h2>
 <ul>
 <li>Contact enquiries: {{retention.contactEnquiries}}.</li>
 <li>Feedback: {{retention.feedback}}.</li>
 <li>Reports and grievances: {{retention.reports}}, or longer where the law requires.</li>
 <li>Hashed IP addresses: {{retention.ipHashes}}.</li>
+<li>Player accounts: until you delete your account (Account → Delete account). Deleting erases your name, email, Google ID, in-game name and Character ID; past room results stay under “Deleted player”, and an anonymous coin history is kept for fraud prevention and accounting.</li>
 </ul>
 <h2>Security</h2>
 <p>Data is encrypted in transit (HTTPS) and stored on access-controlled systems. Staff access requires two-factor authentication and every administrative change is logged.</p>
@@ -53,7 +55,9 @@ export const LEGAL_DRAFTS: Record<LegalSlug, { title: string; html: string }> = 
 <p>These terms apply to your use of {{site.name}} ({{site.url}}), operated by {{owner}}. By using the website you agree to them.</p>
 <h2>What we offer</h2>
 <p>{{site.name}} is a free information and community website about BGMI and PUBG Mobile: tournament listings, sensitivity settings, guides and news. Using the website is free.</p>
-<p><strong>We do not run paid competitions.</strong> We do not charge entry fees, accept deposits, operate wallets, sell coins or offer betting of any kind. Tournament registration happens on the organiser's own website, under the organiser's own rules.</p>
+<p><strong>We do not run paid competitions.</strong> We do not charge entry fees, accept deposits, operate wallets, sell coins or offer betting of any kind. For third-party tournaments listed on the website, registration happens on the organiser's own website, under the organiser's own rules.</p>
+<h2>Player accounts, Shivanshi Custom Rooms and SGC coins</h2>
+<p>You can optionally create a player account (18+ only) with Google sign-in to join our free custom rooms and collect SGC coins. These are governed by our <a href="/legal/custom-room-rules">Custom Room Rules</a> and <a href="/legal/sgc-rewards-terms">SGC Rewards Terms</a>, which form part of these terms. Keep your account to yourself — one account per person.</p>
 <h2>Independence</h2>
 <p>{{site.name}} is an independent fan-made gaming information and community platform. It is not affiliated with, endorsed by, or sponsored by KRAFTON or Tencent Games unless expressly stated. Game names and trademarks belong to their owners.</p>
 <h2>Accuracy</h2>
@@ -174,5 +178,67 @@ export const LEGAL_DRAFTS: Record<LegalSlug, { title: string; html: string }> = 
 <li>We aim to close reports within 15 days, or faster where the law requires.</li>
 </ul>
 <p>Corrections to tournament or sensitivity information are made as soon as we verify them against official sources.</p>`,
+  },
+  "custom-room-rules": {
+    title: "Shivanshi Custom Room Rules",
+    html: `
+<p>These rules apply to Shivanshi Custom Rooms — free BGMI custom-room matches organised by {{site.name}} ({{site.url}}), operated by {{owner}}. They form part of our <a href="/legal/terms">Terms and Conditions</a>.</p>
+<h2>Free to play</h2>
+<p>Custom rooms are always free. There is no entry fee, deposit or purchase of any kind, and no betting or wagering on results.</p>
+<h2>Who can play</h2>
+<ul>
+<li>You must be 18 or older and have a {{site.name}} player account.</li>
+<li>Your profile must show your own BGMI in-game name and Character ID. One account per person, and one Character ID per account.</li>
+<li>You must follow BGMI's own terms of service. {{site.name}} is not affiliated with KRAFTON.</li>
+</ul>
+<h2>Registration and slots</h2>
+<ul>
+<li>Solo rooms: register yourself. Duo and squad rooms: the squad captain registers the squad and chooses the players (and an optional substitute for squads).</li>
+<li>A player can be in only one team per room. Slots are given in order of registration; when a room is full, teams join the waitlist and move up automatically if a confirmed team withdraws before registration closes.</li>
+<li>Captains can withdraw their team until registration closes.</li>
+</ul>
+<h2>Room ID and password</h2>
+<p>The room ID and password are shown only to players of confirmed teams on the room page, shortly before each match. Do not share them. Join the room with the account that matches your registered Character ID and take the slot you were given.</p>
+<h2>Fair play</h2>
+<p>The following lead to disqualification and may lead to an account ban: hacks, mods, scripts or any unauthorised software; emulators unless the room says they are allowed; teaming with other teams; stream sniping; exploiting bugs; playing with someone else's account or Character ID; abusive behaviour; or sharing the room details.</p>
+<h2>Scoring and results</h2>
+<p>Each room shows its points table. Unless a room says otherwise: placement points 10, 6, 5, 4, 3, 2, 1, 1 for places 1 to 8 (0 below), plus 1 point per kill. Ties are broken by total placement points, then total kills, then placement in the last match played. Results are entered by our team from the match; standings are final when the room is marked completed.</p>
+<h2>Disputes</h2>
+<p>Raise a dispute within 24 hours of a match by writing to {{contact.email}} with your team name, match number and evidence. Our decision on disputes and disqualifications is final, subject to applicable law.</p>
+<h2>Prizes</h2>
+<p>Prizes, if any, are SGC coins credited to every player of the winning team's registered lineup, as shown on the room page. SGC coins are covered by the <a href="/legal/sgc-rewards-terms">SGC Rewards Terms</a>; they have no cash value.</p>
+<h2>Streaming</h2>
+<p>Matches may be streamed and recorded on our channels. Team names and in-game names appear in the stream and in public results.</p>
+<h2>Changes and cancellations</h2>
+<p>We may reschedule, change or cancel a room or match (for example because of technical issues or game updates). We'll show the change on the room page.</p>`,
+  },
+  "sgc-rewards-terms": {
+    title: "SGC Coins and Rewards Terms",
+    html: `
+<p>These terms explain SGC coins and the rewards store on {{site.name}} ({{site.url}}), operated by {{owner}}. They form part of our <a href="/legal/terms">Terms and Conditions</a>.</p>
+<h2>What SGC coins are</h2>
+<p>SGC coins are free loyalty points on our website. They are <strong>not money</strong>: they cannot be bought, sold, transferred to anyone else, or exchanged for cash, and they have no monetary value. They can only be used in the {{site.name}} rewards store.</p>
+<h2>How you get them</h2>
+<ul>
+<li><strong>Daily spin</strong> — one free spin per India calendar day (IST). Every result is a number of SGC coins; the wheel never pays out vouchers, cash or items directly.</li>
+<li><strong>Daily streak</strong> — spinning on consecutive days earns bonus coins on the days shown on the rewards page. Missing a day restarts the streak.</li>
+<li><strong>Custom room prizes</strong> and occasional promotions announced on the website.</li>
+</ul>
+<p>Nothing is ever charged for any of these: there is no entry fee, deposit, purchase or stake.</p>
+<h2>Rewards store</h2>
+<ul>
+<li>Rewards (for example official BGMI UC or Royal Pass gift vouchers) are bought by us from authorised partners and offered while stock lasts. The coin price, stock and limits are shown in the store.</li>
+<li>To redeem, you need a player account that meets the conditions shown in the store (such as a minimum account age and your BGMI Character ID on your profile). Monthly and per-reward limits apply.</li>
+<li>Every redemption is reviewed by our team. Approved vouchers are delivered as a code in your account; voucher codes are subject to the issuer's and KRAFTON's terms.</li>
+<li>If we reject a redemption, the coins are returned to your account.</li>
+</ul>
+<h2>Fair use</h2>
+<p>One account per person. Multiple accounts, automated spinning, false information or any attempt to abuse the system may lead to rejected redemptions, removal of coins and closure of the account.</p>
+<h2>Changes and ending the programme</h2>
+<p>We may change coin amounts, rewards, prices or limits, or end the programme, by updating this page and the rewards page. Coins have no value outside the website and are removed when an account is deleted or closed for abuse.</p>
+<h2>Independence</h2>
+<p>{{site.name}} is not affiliated with, endorsed by, or sponsored by KRAFTON or Tencent Games. BGMI, UC and Royal Pass are trademarks of their owners.</p>
+<h2>Questions and grievances</h2>
+<p>{{contact.email}}. See the <a href="/legal/grievance">Grievance Redressal Policy</a>.</p>`,
   },
 };

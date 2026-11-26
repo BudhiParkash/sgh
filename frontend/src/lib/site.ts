@@ -49,16 +49,20 @@ export const socialLabels: Record<keyof typeof siteConfig.socials, string> = {
 export interface NavItem {
   label: string;
   href: string;
+  /** false = only in the mobile menu (the logo already links home; Contact is in the footer). */
+  desktop?: boolean;
 }
 
 export const mainNav: NavItem[] = [
-  { label: "Home", href: "/" },
+  { label: "Home", href: "/", desktop: false },
   { label: "Tournaments", href: "/tournaments" },
+  { label: "Custom Rooms", href: "/custom-rooms" },
+  { label: "Rewards", href: "/rewards" },
   { label: "Sensitivity", href: "/sensitivity" },
   { label: "Gaming Guides", href: "/guides" },
   { label: "News", href: "/news" },
-  { label: "About Us", href: "/about" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact Us", href: "/contact", desktop: false },
 ];
 
 export const footerNav: { title: string; items: NavItem[] }[] = [
@@ -67,6 +71,8 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "My saved", href: "/saved" },
       { label: "Tournaments", href: "/tournaments" },
+  { label: "Custom Rooms", href: "/custom-rooms" },
+  { label: "Rewards", href: "/rewards" },
       { label: "Sensitivity Finder", href: "/sensitivity" },
       { label: "Gaming Guides", href: "/guides" },
       { label: "News", href: "/news" },

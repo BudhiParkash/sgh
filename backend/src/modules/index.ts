@@ -16,6 +16,9 @@ import { tagAdminRoutes } from "./tags/tag.routes.js";
 import { TagModel } from "./tags/tag.model.js";
 import { previewRoutes } from "./preview.routes.js";
 import { aiAgentRoutes } from "./mcp/ai-agents.routes.js";
+import type { PlayerSessionStore } from "./play/player-auth.js";
+import { playerAdminRoutes, redemptionAdminRoutes, rewardAdminRoutes, roomAdminRoutes } from "./play/play.admin.js";
+import { playPublicRoutes } from "./play/play.routes.js";
 import { gameAdminRoutes, gamePublicRoutes } from "./games/game.routes.js";
 import { homeRoutes, registerHomeProvider } from "./home/home.routes.js";
 import { TournamentModel } from "./tournaments/tournament.model.js";
@@ -40,6 +43,7 @@ export interface AppDeps {
   redis: Redis;
   sessions: SessionStore;
   cache: Cache;
+  playerSessions: PlayerSessionStore;
 }
 
 let registered = false;
@@ -124,6 +128,11 @@ export function registerModules({ publicApi, admin, deps }: { publicApi: Router;
   admin.use("/legal", legalAdminRoutes(cache));
   admin.use("/seo", seoAdminRoutes());
   admin.use("/ai-agents", aiAgentRoutes(deps.redis, sessions));
+  // Play — player accounts, custom rooms, rewards (docs/architecture/15-play.md)
+  admin.use("/players", playerAdminRoutes(deps.playerSessions));
+  admin.use("/rooms", roomAdminRoutes());
+  admin.use("/rewards", rewardAdminRoutes());
+  admin.use("/redemptions", redemptionAdminRoutes());
   const inbox = inboxAdminRoutes();
   admin.use("/feedback", inbox.feedback!);
   admin.use("/enquiries", inbox.enquiries!);
@@ -144,6 +153,7 @@ export function registerModules({ publicApi, admin, deps }: { publicApi: Router;
   publicApi.use("/articles", articlePublicRoutes(cache));
   publicApi.use("/search", searchRoutes(cache));
   publicApi.use("/legal", legalPublicRoutes(cache));
+  publicApi.use("/", playPublicRoutes());
   publicApi.use("/", seoPublicRoutes(cache));
   publicApi.use("/", indexNowKeyRoute);
   publicApi.use("/", inboxPublicRoutes(deps.redis));
