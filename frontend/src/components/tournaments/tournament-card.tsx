@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image";
 import { CalendarDays, ShieldCheck, Trophy, Users } from "lucide-react";
 import type { TournamentSummary } from "@sgh/shared";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ export function TournamentCard({ t, className }: { t: TournamentSummary; classNa
     >
       <div className="relative aspect-[16/9] bg-surface-2">
         {t.featuredImage ? (
-          <Image src={t.featuredImage.url} alt={t.featuredImage.alt} fill sizes="(min-width:1024px) 33vw, 90vw" className="object-cover" />
+          <MediaImage image={t.featuredImage} fill sizes="(min-width:1024px) 33vw, 90vw" className="object-cover" />
         ) : (
           <div className="bg-atmosphere absolute inset-0 grid place-items-center" aria-hidden="true">
             <Trophy className="size-10 text-primary-hover/60" />

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image";
 import type { ArticleSummary } from "@sgh/shared";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -16,7 +16,7 @@ export function ArticleCard({ a, variant = "default", className }: { a: ArticleS
     return (
       <article className={cn("relative flex gap-4 rounded-lg p-3 hover:bg-surface-1", className)}>
         <div className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-surface-2">
-          {a.featuredImage && <Image src={a.featuredImage.url} alt={a.featuredImage.alt} fill sizes="80px" className="object-cover" />}
+          {a.featuredImage && <MediaImage image={a.featuredImage} fill sizes="80px" className="object-cover" />}
         </div>
         <div className="min-w-0">
           <p className="text-xs text-subtle">{a.category.name}{date && <> · <time dateTime={a.publishedAt}>{date}</time></>}</p>
@@ -31,7 +31,7 @@ export function ArticleCard({ a, variant = "default", className }: { a: ArticleS
     <Card interactive className={cn("flex h-full flex-col overflow-hidden", className)}>
       <div className={cn("relative bg-surface-2", variant === "lead" ? "aspect-[16/9]" : "aspect-[3/2]")}>
         {a.featuredImage && (
-          <Image src={a.featuredImage.url} alt={a.featuredImage.alt} fill sizes={variant === "lead" ? "(min-width:1024px) 60vw, 100vw" : "(min-width:1024px) 25vw, 90vw"} className="object-cover" />
+          <MediaImage image={a.featuredImage} fill priority={variant === "lead"} sizes={variant === "lead" ? "(min-width:1024px) 60vw, 100vw" : "(min-width:1024px) 25vw, 90vw"} className="object-cover" />
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">

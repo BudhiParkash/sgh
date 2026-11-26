@@ -44,3 +44,17 @@ describe("Field", () => {
     expect(input.getAttribute("aria-describedby")).toBe("email-hint email-error");
   });
 });
+
+describe("MediaImage", () => {
+  it("loads media-library images directly with responsive variants (never via /_next/image)", async () => {
+    const { MediaImage } = await import("@/components/ui/media-image");
+    const image = { url: "https://shivanshigaming.com/media/a/1280.webp", alt: "BGIS finals stage", width: 1600, height: 900, srcSet: "https://shivanshigaming.com/media/a/640.webp 640w, https://shivanshigaming.com/media/a/1280.webp 1280w" };
+    render(<div className="relative"><MediaImage image={image} fill sizes="33vw" /></div>);
+    const img = screen.getByRole("img", { name: "BGIS finals stage" });
+    expect(img.getAttribute("src")).toBe(image.url);
+    expect(img.getAttribute("srcset")).toBe(image.srcSet);
+    expect(img.getAttribute("sizes")).toBe("33vw");
+    expect(img.getAttribute("loading")).toBe("lazy");
+    expect(img.getAttribute("src")).not.toContain("/_next/image");
+  });
+});

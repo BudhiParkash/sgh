@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { MediaImage } from "@/components/ui/media-image";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Flag, Megaphone, Tag } from "lucide-react";
 import type { ArticleDetail, ArticleSummary, CategoryDto } from "@sgh/shared";
@@ -187,7 +187,7 @@ export function makeArticlePage(kind: Kind) {
           </header>
           {a.featuredImage && (
             <div className="relative mt-8 aspect-[16/9] max-w-4xl overflow-hidden rounded-xl bg-surface-2">
-              <Image src={a.featuredImage.url} alt={a.featuredImage.alt} fill priority sizes="(min-width:1024px) 900px, 100vw" unoptimized className="object-cover" />
+              <MediaImage image={a.featuredImage} fill priority sizes="(min-width:1024px) 900px, 100vw" className="object-cover" />
             </div>
           )}
           <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_260px]">

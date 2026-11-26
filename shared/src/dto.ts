@@ -21,6 +21,8 @@ export interface MediaRef {
   alt: string;
   width: number;
   height: number;
+  /** Responsive WebP variants ("url 320w, …") — present on API responses. */
+  srcSet?: string;
 }
 
 export interface GameRef {

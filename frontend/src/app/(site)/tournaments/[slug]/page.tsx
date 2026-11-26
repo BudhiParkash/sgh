@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { MediaImage } from "@/components/ui/media-image";
 import { notFound } from "next/navigation";
 import { AlertTriangle, CalendarDays, ExternalLink, Flag, ShieldCheck, Trophy, Users } from "lucide-react";
 import type { TournamentDetail } from "@sgh/shared";
@@ -94,7 +94,7 @@ export default async function TournamentPage({ params }: { params: Promise<{ slu
           </div>
           <div className="relative hidden aspect-square lg:block">
             {t.featuredImage ? (
-              <Image src={t.featuredImage.url} alt={t.featuredImage.alt} fill priority sizes="40vw" unoptimized className="rounded-xl object-cover" />
+              <MediaImage image={t.featuredImage} fill priority sizes="(min-width:1024px) 40vw, 100vw" className="rounded-xl object-cover" />
             ) : (
               <TrophyScene />
             )}
