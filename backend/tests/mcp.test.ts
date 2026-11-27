@@ -142,7 +142,7 @@ describe("AI agents & MCP", () => {
     expect((await TournamentModel.findById(dup).lean())!.workflow!.status).toBe("archived");
 
     const list = await send(owner, "get", "");
-    expect(list.body.data[0].effectivePermissions).toEqual(expect.arrayContaining(["tournament:publish", "article:publish"]));
+    expect(list.body.data[0].effectivePermissions).toEqual(expect.arrayContaining(["tournament:publish", "article:publish", "article:update_any"]));
     expect(list.body.data[0].effectivePermissions).not.toContain("tournament:delete");
     expect(list.body.data[0].effectivePermissions).not.toContain("tournament:verify");
     await client.close();

@@ -150,7 +150,8 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
   },
   /**
    * Opt-in AI role for owners who want the assistant to finish the job: everything "AI agent" can do, plus
-   * approve / publish / schedule / unpublish / archive / restore content. Still no delete, verify, settings,
+   * approve / publish / schedule / unpublish / archive / restore content, and edit articles written by
+   * other people (article:update_any), e.g. to add a featured image to a published article. Still no delete, verify, settings,
    * legal, people, inbox or Play (the agent ceiling below strips those regardless).
    */
   ai_publisher: {
@@ -164,7 +165,7 @@ export const DEFAULT_ROLES: Record<RoleKey, { name: string; permissions: Permiss
         "device:read", "device:create", "device:update", "device:publish",
         "weapon:read", "weapon:create", "weapon:update", "weapon:publish",
         "scope:read", "game:read",
-        "article:read", "article:create", "article:update", "article:publish",
+        "article:read", "article:create", "article:update", "article:update_any", "article:publish",
         "category:read", "tag:read", "tag:create",
         "media:read", "media:create", "seo:read", "seo:update", "redirect:read",
       ),
